@@ -23,13 +23,14 @@ char ** split_into_arguments(char * input) {
         size_t len = strlen(token);
 
     }
+    return NULL;
 }
 
 int main(void) {
-    char * command[BUFFER]
     printf("$ ");
     char * buffer[BUFFER];
     fgets(buffer, BUFFER, stdin);
-    assert_valid_input(input);
-    execvp(command, xargs);
+    assert_valid_input(buffer);
+    char ** args = split_into_arguments(buffer);
+    excecvp(args[0], &args[1]);
 }
