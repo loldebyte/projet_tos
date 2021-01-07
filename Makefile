@@ -1,22 +1,13 @@
 CC=gcc
 CFLAGS=-Wall
 DEPS=
-OBJDIR=./obj
-INCLUDE=./include
-LIBS=./lib
-LIB=
+OBJ= launcher.o
 
-DEPS = $(patsubst %,$(IDIR)/%)
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-OBJ = $(patsubst %,$(OBJDIR)/%)
-
-$(OBJDIR)/%.o: %.c $(DEPS)
-	$CC -c -o $@ $< $(CFLAGS)
-
-make: $(OBJ)
-	$(CC) -o $@ $< $(CFLAGS) $(LIB)
-
-.PHONY: clean
+make: launcher.o
+	$(CC) -o launcher launcher.o
 
 clean:
-	rm -f $(OBJDIR)/*.o *~ core $(INCDIR)/*~
+	rm launcher.o
