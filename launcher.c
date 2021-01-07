@@ -17,13 +17,16 @@ void assert_valid_input(char * input) {
     assert(input[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
 }
 char ** split_into_arguments(char * input) {
-    char ** array;
-    char * token;
+    char ** array = (char **) NULL;
+    size_t curr_len = 0, curr_cell = 0;
     while (token = strtok(input, ' '); token != NULL) {
         size_t len = strlen(token);
-
+        array = (char **) realloc(array, curr_len + len);
+        curr_len += len;
+        array[curr_cell] = token;
+        curr_cell++;
     }
-    return NULL;
+    return array;
 }
 
 int main(void) {
