@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define SEP " "
 #define BUFFER 102
@@ -55,7 +56,7 @@ void execute(char ** args) {
 }
 
 int main(void) {
-    while (TRUE) {
+    while (true) {
         printf("$ ");
         char buffer[BUFFER];
         fgets(buffer, BUFFER, stdin);
