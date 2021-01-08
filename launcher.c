@@ -63,6 +63,7 @@ int pipefy(char *** args, int argc) {
     pipe_pos = scan_array_for_pipe(args, argc);
     if (pipe_pos == -1)
         return 1;
+    char ** first;
     
 }
 
