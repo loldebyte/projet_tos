@@ -10,14 +10,15 @@
 #define BUFFER 102
 
 
-void assert_valid_input(char *);
+void assert_valid_input(char (*)[]);
 size_t split_into_arguments(char *, char ***);
 void execute(char **);
 
-void assert_valid_input(char * input) {
-    size_t len = strlen(input);
+void assert_valid_input(char (*input)[]) {
+    size_t len = strlen(*input);
     assert(len > 2 && "Please enter a command.\n");
-    assert(input[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
+    assert((*input)[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
+    (*input)[len-1] = 0; // the \n makes most commands fail
 }
 
 size_t split_into_arguments(char * input, char *** output) {
@@ -40,16 +41,16 @@ void execute(char ** args) {
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
-        assert(execvp(args[0], args) && "Could not execute command in child process");
-        sleep(1);
+        if (execvp(args[0], args) < 0) {
+            printf("Exec failed");
+            perror(args[0]);
+            exit(1);
+        }
     }
     else {
         pid_t wait_status;
         while(wait_status = waitpid(pid, &status, 0), wait_status != pid)
-            if (wait_status == -1) {
-                perror("Wait failed");
-                exit(1);
-            }
+            assert(wait_status != -1 && "Wait failed");
     }
 }
 
@@ -57,7 +58,7 @@ int main(void) {
     printf("$ ");
     char buffer[BUFFER];
     fgets(buffer, BUFFER, stdin);
-    assert_valid_input(buffer);
+    assert_valid_input(&buffer);
     char ** args = NULL;
     size_t nb_of_args = split_into_arguments(buffer, &args);
     nb_of_args += 0; // this is to keep Wall quiet
