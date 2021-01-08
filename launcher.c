@@ -64,7 +64,12 @@ int pipefy(char *** args, int argc) {
     if (pipe_pos == -1)
         return 1;
     char ** first;
-    
+    first = copy_str_sub_array(args, &first, argc);
+    args = &((*args)+argc);
+    int pipefd[2];
+    assert(pipe(pipefd) == 0);
+    exec_with_pipe(first, pipe);
+    pipefy(args, argc-pipe_pos);
 }
 
 bool scan_array_for_pipe(char *** args, int argc) {
