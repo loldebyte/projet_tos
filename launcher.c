@@ -41,11 +41,9 @@ void execute(char ** args) {
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
-        if (execvp(args[0], args) < 0) {
-            printf("Exec failed");
-            perror(args[0]);
-            exit(1);
-        }
+        int check_execvp = 0;
+        check_execvp = execvp(args[0], args);
+        assert(check_execvp == 0 && "Execvp failed");
     }
     else {
         pid_t wait_status;
