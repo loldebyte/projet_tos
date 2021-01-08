@@ -41,6 +41,7 @@ void execute(char ** args) {
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
         assert(execvp(args[0], args) && "Could not execute command in child process");
+        sleep(1);
     }
     else {
         pid_t wait_status;
