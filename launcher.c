@@ -14,6 +14,10 @@
 void assert_valid_input(char (*)[]);
 size_t split_into_arguments(char *, char ***);
 void execute(char **);
+void pipefy(char ***, int);
+void exec_with_pipe(char **, int [])
+bool scan_array_for_pipe(char ***, int);
+void copy_str_sub_array(char ***, char ***, int);
 
 void assert_valid_input(char (*input)[]) {
     size_t len = strlen(*input);
@@ -54,6 +58,29 @@ void execute(char ** args) {
             assert(wait_status != -1 && "Wait failed");
     }
 }
+
+int pipefy(char *** args, int argc) {
+    pipe_pos = scan_array_for_pipe(args, argc);
+    if (pipe_pos == -1)
+        return 1;
+    
+}
+
+bool scan_array_for_pipe(char *** args, int argc) {
+    int pipe_pos = -1;
+    int i=argc-1;
+    while (i > -1 && pipe_pos == -1) {
+        if (strcmp((*args)[i], "|") == 0)
+            pipe_pos = i;
+        i--;
+    }
+    return pipe_pos;
+}
+
+void exec_with_pipe() {
+
+}
+
 
 int main(void) {
     while (true) {
