@@ -70,6 +70,7 @@ int pipefy(char *** args, int argc) {
     assert(pipe(pipefd) == 0);
     exec_with_pipe(first, pipe);
     pipefy(args, argc-pipe_pos);
+    // TODO: add code so the execute processes know what end of the pipe to use 
 }
 
 bool scan_array_for_pipe(char *** args, int argc) {
