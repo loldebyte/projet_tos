@@ -51,7 +51,8 @@ void execute(char ** args) {
     else {
         pid_t wait_status;
         while(wait_status = waitpid(pid, &status, 0), wait_status != pid)
-            assert(wait_status != -1 && "Wait failed");
+            assert(wait_status != -1 && "Wait failed"); // TODO: this behaviour should be
+            // dependant on flag
     }
 }
 
