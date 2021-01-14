@@ -16,6 +16,9 @@ size_t split_into_arguments(char *, char ***);
 void execute(char **);
 
 void assert_valid_input(char (*input)[]) {
+    // parameter(s) : array of char * (strings)
+    // asserts the inputed array of strings is valid,
+    // and deletes the trailing \n (last char of last string)
     size_t len = strlen(*input);
     assert(len > 2 && "Please enter a command.\n");
     assert((*input)[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
@@ -23,6 +26,11 @@ void assert_valid_input(char (*input)[]) {
 }
 
 size_t split_into_arguments(char * input, char *** output) {
+    // parameters : 
+    //    - input : the string to be split
+    //    - output : the adress of the string array in which our tokens will be stored
+    // returns the length of the `output` array as a size_t after storing all tokens
+    // in the array pointed to by `output`
     size_t curr_len = 0, curr_cell = 0, len;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
@@ -36,9 +44,10 @@ size_t split_into_arguments(char * input, char *** output) {
 }
 
 void execute(char ** args) {
+    // parameter(s) : creates a child process executing th contents of the `args` parameter
+    // forks the current process, child process gets exec'd and parent process waits
     pid_t pid;
     int status;
-
     if (strcmp(args[0], "exit") == 0)
         exit(0);
     pid = fork();
