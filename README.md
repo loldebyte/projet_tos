@@ -8,4 +8,4 @@ Pour compiler le projet, il suffit d'exécuter `make`.
 
 Pour supprimer les fichiers résiduels (.o etc...) exécuter `make clean`.
 
-Cette branche a pour objectif de supporter les chemins relatifs `.` et `..`
+Supporte les chemins relatifs `.` et `..`.

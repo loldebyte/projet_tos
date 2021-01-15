@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define SEP " "
 #define BUFFER 102
@@ -55,13 +56,15 @@ void execute(char ** args) {
 }
 
 int main(void) {
-    printf("$ ");
-    char buffer[BUFFER];
-    fgets(buffer, BUFFER, stdin);
-    assert_valid_input(&buffer);
-    char ** args = NULL;
-    size_t nb_of_args = split_into_arguments(buffer, &args);
-    nb_of_args += 0; // this is to keep Wall quiet
-    execute(args);
-    free(args);
+    while (true) {
+        printf("$ ");
+        char buffer[BUFFER];
+        fgets(buffer, BUFFER, stdin);
+        assert_valid_input(&buffer);
+        char ** args = NULL;
+        size_t nb_of_args = split_into_arguments(buffer, &args);
+        nb_of_args += 0; // this is to keep Wall quiet
+        execute(args);
+        free(args);
+    }
 }
