@@ -10,15 +10,15 @@
 #define SEP " "
 #define BUFFER 102
 
-typedef enum EXEC_TYPE
+typedef enum EXEC_FLAGS
 {
     WAIT=10, DONT_WAIT
-} EXEC_TYPE;
+} EXEC_FLAGS;
 
 void assert_valid_input(char (*)[]);
 size_t split_into_arguments(char *, char ***);
 void execute(char **, size_t);
-EXEC_TYPE get_execution_type(char **, size_t);
+EXEC_FLAGS get_execution_type(char **, size_t);
 bool strings_are_the_same(char *, char *);
 
 void assert_valid_input(char (*input)[]) {
@@ -47,14 +47,14 @@ void execute(char ** args, size_t nb_args) {
 
     if (strcmp(args[0], "exit") == 0)
         exit(0);
+    EXEC_FLAGS exec_type = get_execution_type(&args, nb_args);
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
         int check_execvp = execvp(args[0], args);
-        assert(check_execvp =! -1 && "Execvp failed");
+        assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
-        EXEC_TYPE exec_type = get_execution_type(args, nb_args);
         if (exec_type == WAIT) {
             pid_t wait_status;
             while(wait_status = waitpid(pid, &status, 0), wait_status != pid)
@@ -69,10 +69,11 @@ void execute(char ** args, size_t nb_args) {
     }
 }
 
-EXEC_TYPE get_execution_type(char ** args, size_t nb_of_args) {
-    if (strings_are_the_same(args[nb_of_args-1], "&"))
+EXEC_TYPE get_execution_type(char *** args, size_t nb_of_args) {
+    if (strings_are_the_same(args[nb_of_args-1], "&")) {
         return DONT_WAIT;
-    return WAIT
+    }
+    return WAIT;
 }
 
 bool strings_are_the_same(char * arg, char * to_compare) {
