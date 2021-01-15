@@ -10,10 +10,16 @@
 #define SEP " "
 #define BUFFER 102
 
+typedef enum EXEC_TYPE
+{
+    WAIT=10, DONT_WAIT
+} EXEC_TYPE;
 
 void assert_valid_input(char (*)[]);
 size_t split_into_arguments(char *, char ***);
-void execute(char **);
+void execute(char **, size_t);
+EXEC_TYPE get_execution_type(char **, size_t);
+bool strings_are_the_same(char *, char *);
 
 void assert_valid_input(char (*input)[]) {
     size_t len = strlen(*input);
@@ -35,7 +41,7 @@ size_t split_into_arguments(char * input, char *** output) {
     return curr_cell;
 }
 
-void execute(char ** args) {
+void execute(char ** args, size_t nb_args) {
     pid_t pid;
     int status;
 
@@ -44,16 +50,28 @@ void execute(char ** args) {
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
-        int check_execvp = 0;
-        check_execvp = execvp(args[0], args);
-        assert(check_execvp == 0 && "Execvp failed");
+        int check_execvp = execvp(args[0], args);
+        assert(check_execvp =! -1 && "Execvp failed");
     }
     else {
+        EXEC_TYPE exec_type = get_execution_type(args, nb_args);
         pid_t wait_status;
         while(wait_status = waitpid(pid, &status, 0), wait_status != pid)
             assert(wait_status != -1 && "Wait failed"); // TODO: this behaviour should be
             // dependant on flag
     }
+}
+
+EXEC_TYPE get_execution_type(char ** args, size_t nb_of_args) {
+    if (strings_are_the_same(args[nb_of_args-1], "&"))
+        return DONT_WAIT;
+    return WAIT
+}
+
+bool strings_are_the_same(char * arg, char * to_compare) {
+    int val;
+    val = strcmp(arg, to_compare);
+    return val == 0 ? true : false;
 }
 
 int main(void) {
@@ -64,8 +82,7 @@ int main(void) {
         assert_valid_input(&buffer);
         char ** args = NULL;
         size_t nb_of_args = split_into_arguments(buffer, &args);
-        nb_of_args += 0; // this is to keep Wall quiet
-        execute(args);
+        execute(args, nb_of_args);
         free(args);
     }
 }
