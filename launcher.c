@@ -21,9 +21,10 @@ typedef struct EXECUTION_CONF {
 
 void assert_valid_input(char (*)[]);
 size_t split_into_arguments(char *, char ***);
-void execute(char **, size_t);
+void execute(char **, EXECUTION_CONF *);
 EXEC_FLAGS get_execution_type(char **, size_t);
 bool strings_are_the_same(char *, char *);
+EXECUTION_CONF * create_run_conf();
 
 void assert_valid_input(char (*input)[]) {
     size_t len = strlen(*input);
@@ -33,25 +34,22 @@ void assert_valid_input(char (*input)[]) {
 }
 
 size_t split_into_arguments(char * input, char *** output) {
-    size_t curr_len = 0, curr_cell = 0, len;
+    size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
-        len = strlen(token);
         *output = realloc(*output, sizeof(*output) * (curr_cell+1));
-        curr_len += len;
-        *((*output)+curr_cell) = token;
+        *((*output)+curr_cell) = token; // *(output[curr_cell]) = token
         curr_cell++;
     }
     return curr_cell;
 }
 
-void execute(char ** args, size_t nb_args) {
+void execute(char ** args, EXECUTION_CONF * config) {
     pid_t pid;
     int status;
 
     if (strcmp(args[0], "exit") == 0)
         exit(0);
-    EXEC_FLAGS exec_type = get_execution_type(&args, nb_args);
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
@@ -59,12 +57,12 @@ void execute(char ** args, size_t nb_args) {
         assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
-        if (exec_type == WAIT) {
+        if (config->exec_type == WAIT) {
             pid_t wait_status;
             while(wait_status = waitpid(pid, &status, 0), wait_status != pid)
                 assert(wait_status != -1 && "Wait failed");
             }
-        else if (exec_type == DONT_WAIT) {
+        else if (config->exec_type == DONT_WAIT) {
             ;
         }   
         else {
@@ -73,7 +71,7 @@ void execute(char ** args, size_t nb_args) {
     }
 }
 
-EXEC_TYPE get_execution_type(char *** args, size_t nb_of_args) {
+EXEC_TYPE get_execution_type(char ** args, size_t nb_of_args) {
     if (strings_are_the_same(args[nb_of_args-1], "&")) {
         return DONT_WAIT;
     }
@@ -94,7 +92,8 @@ int main(void) {
         assert_valid_input(&buffer);
         char ** args = NULL;
         size_t nb_of_args = split_into_arguments(buffer, &args);
-        execute(args, nb_of_args);
+        EXECUTION_CONF * conf = create_run_conf();
+        execute(args, conf);
         free(args);
     }
 }
