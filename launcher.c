@@ -10,10 +10,14 @@
 #define SEP " "
 #define BUFFER 102
 
-typedef enum EXEC_FLAGS
-{
+typedef enum EXEC_FLAGS {
     WAIT=10, DONT_WAIT
 } EXEC_FLAGS;
+
+typedef struct EXECUTION_CONF {
+    EXEC_FLAGS exec_type;
+    size_t number_of_arguments
+} EXECUTION_CONF;
 
 void assert_valid_input(char (*)[]);
 size_t split_into_arguments(char *, char ***);
