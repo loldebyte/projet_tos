@@ -15,8 +15,9 @@ typedef enum EXEC_FLAGS {
 } EXEC_FLAGS;
 
 typedef struct EXECUTION_CONF {
+    char ** arguments;
     EXEC_FLAGS exec_type;
-    size_t number_of_arguments
+    size_t number_of_arguments;
 } EXECUTION_CONF;
 
 void assert_valid_input(char (*)[]);
@@ -33,7 +34,7 @@ void assert_valid_input(char (*input)[]) {
     (*input)[len-1] = 0; // the \n makes most commands fail
 }
 
-size_t split_into_arguments(char * input, char *** output) {
+size_t split_into_arguments(char * input, char *** output) { // output expects &(struct->args)
     size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
@@ -43,17 +44,17 @@ size_t split_into_arguments(char * input, char *** output) {
     }
     return curr_cell;
 }
-
-void execute(char ** args, EXECUTION_CONF * config) {
+ 
+void execute(EXECUTION_CONF * config) {
     pid_t pid;
     int status;
 
-    if (strcmp(args[0], "exit") == 0)
+    if (strcmp(config->args[0], "exit") == 0)
         exit(0);
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
-        int check_execvp = execvp(args[0], args);
+        int check_execvp = execvp(config->args[0], args);
         assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
@@ -71,8 +72,8 @@ void execute(char ** args, EXECUTION_CONF * config) {
     }
 }
 
-EXEC_TYPE get_execution_type(char ** args, size_t nb_of_args) {
-    if (strings_are_the_same(args[nb_of_args-1], "&")) {
+EXEC_TYPE get_execution_type(EXECUTION_CONF * config) {
+    if (strings_are_the_same(config->args[config->number_of_arguments-1], "&")) {
         return DONT_WAIT;
     }
     return WAIT;
@@ -82,6 +83,11 @@ bool strings_are_the_same(char * arg, char * to_compare) {
     int val;
     val = strcmp(arg, to_compare);
     return val == 0 ? true : false;
+}
+
+void dealloc_last_argument(char *** args, size_t * nb_of_args) {
+    *args = realloc(*args, sizeof(*args) * (*nb_of_args-1));
+    *nb_of_args--; // not included in the line above for explicitness' sake
 }
 
 int main(void) {
