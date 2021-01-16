@@ -39,8 +39,10 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
     size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
-        config->args = realloc(config->args, sizeof(config->args) * (curr_cell+1));
-        *(config->args[curr_cell]) = token;
+        config->arguments = realloc(config->arguments,
+                                    sizeof(config->arguments)
+                                    * (curr_cell+1));
+        *(config->arguments[curr_cell]) = token;
         curr_cell++;
     }
     config->number_of_arguments = curr_cell;
@@ -50,12 +52,12 @@ void execute(EXECUTION_CONF * config) {
     pid_t pid;
     int status;
 
-    if (strcmp(config->args[0], "exit") == 0)
+    if (strcmp(config->arguments[0], "exit") == 0)
         exit(0);
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
-        int check_execvp = execvp(config->args[0], args);
+        int check_execvp = execvp(config->arguments, args);
         assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
@@ -74,7 +76,7 @@ void execute(EXECUTION_CONF * config) {
 }
 
 void get_execution_type(EXECUTION_CONF * config) {
-    if (strings_are_the_same(config->args[config->number_of_arguments-1], "&")) {
+    if (strings_are_the_same(config->arguments[config->number_of_arguments-1], "&")) {
         config->exec_type = DONT_WAIT;
     }
     config->exec_type = WAIT;
@@ -87,20 +89,22 @@ bool strings_are_the_same(char * arg, char * to_compare) {
 }
 
 void dealloc_last_argument(EXECUTION_CONF * config) {
-    config->args = realloc(config->args, sizeof(config->args) * (config->number_of_arguments-1));
+    config->arguments = realloc(config->arguments,
+                                sizeof(config->arguments)
+                                * (config->number_of_arguments-1));
     config->number_of_arguments--; // not included in the line above for explicitness' sake
 }
 
 EXECUTION_CONF * exec_conf_factory(void) {
     EXECUTION_CONF * conf = malloc(sizeof(EXECUTION_CONF));
-    conf->args = malloc(sizeof(1));
+    conf->arguments = malloc(sizeof(1));
     conf->number_of_arguments = 0;
     conf->exec_type = WAIT;
     return conf;
 }
 
 void exec_conf_destructor(EXECUTION_CONF * conf) {
-    free(conf->args);
+    free(conf->arguments);
     free(conf);
 }
 
