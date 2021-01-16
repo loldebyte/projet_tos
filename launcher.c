@@ -54,6 +54,8 @@ void execute(EXECUTION_CONF * config) {
 
     if (strcmp(config->arguments[0], "exit") == 0)
         exit(0);
+    if (config->exec_type != WAIT)
+        dealloc_last_argument(config->arguments);
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
