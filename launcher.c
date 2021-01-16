@@ -32,6 +32,9 @@ void print_all_args(EXECUTION_CONF *);
 void print_all_chars_in_str(char *);
 
 void assert_valid_input(char (*input)[]) {
+    // parameter(s) : array of char * (strings)
+    // asserts the inputed array of strings is valid,
+    // and deletes the trailing \n (last char of last string)
     size_t len = strlen(*input);
     assert(len > 2 && "Please enter a command.\n");
     assert((*input)[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
@@ -40,6 +43,14 @@ void assert_valid_input(char (*input)[]) {
 
 void split_into_arguments(char * input, EXECUTION_CONF * config) {
     size_t curr_cell = 0;
+    // parameters : 
+    //    - input : the string to be split
+    //    - config : the struct stocking all parameters related to execution, including :
+    //    - - arguments : array of strings (char *)
+    //    - - number_of_arguments : length of the array `arguments`
+    //    - - exec_type : a flag dictating how to manage execution
+    // returns the length of the `output` array as a size_t after storing all tokens
+    // in the array pointed to by `output`
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
         config->arguments = realloc(config->arguments,
@@ -52,14 +63,16 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
 }
 
 void execute(EXECUTION_CONF * config) {
-    pid_t pid;
     int status;
-
     if (strcmp(config->arguments[0], "exit") == 0)
         exit(0);
     if (config->exec_type != WAIT)
         dealloc_last_argument(config);
-    pid = fork();
+    // creates a child process executing the `arguments` member of the parameter by forking
+    // the current process, child process gets exec'd and parent process waits
+    // parameter(s) :
+    // - config : the struct containing all relevant data about how/what to execute
+    pid_t pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
         int check_execvp = execvp(config->arguments[0], config->arguments);
