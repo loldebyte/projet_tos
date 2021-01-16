@@ -63,7 +63,6 @@ void execute(EXECUTION_CONF * config) {
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
         int check_execvp = execvp(config->arguments[0], config->arguments);
-        print_all_args(config);
         assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
@@ -83,24 +82,20 @@ void execute(EXECUTION_CONF * config) {
 
 void set_execution_type(EXECUTION_CONF * config) {
     if (strings_are_the_same(config->arguments[config->number_of_arguments-1], "&")) {
-        printf("we goin in bb\n");
         config->exec_type = DONT_WAIT;
     }
     else config->exec_type = WAIT;
 }
 
 bool strings_are_the_same(char * arg, char * to_compare) {
-    int val;
-    val = strcmp(arg, to_compare);
+    int val = strcmp(arg, to_compare);
     return val == 0 ? true : false;
 }
 
 void dealloc_last_argument(EXECUTION_CONF * config) {
-    printf("%c", config->arguments[config->number_of_arguments-1][0]);
-    config->arguments[config->number_of_arguments][0] = '\0';
-    config->arguments = realloc(config->arguments,
-                                sizeof(config->arguments)
-                                * (config->number_of_arguments-1));
+    printf("%c\n", config->arguments[config->number_of_arguments-1][0]);
+    config->arguments[config->number_of_arguments-1][0] = '\0';
+    config->arguments[config->number_of_arguments-1] = (char *) NULL;
     config->number_of_arguments--; // not included in the line above for explicitness' sake
 }
 
@@ -136,7 +131,6 @@ int main(void) {
         EXECUTION_CONF * conf = exec_conf_factory();
         split_into_arguments(buffer, conf);
         set_execution_type(conf);
-        printf("exec_type : %s\n", conf->exec_type == WAIT ? "WAIT" : "NOT WAIT");
         execute(conf);
         exec_conf_destructor(conf);
     }
