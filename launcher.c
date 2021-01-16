@@ -27,6 +27,7 @@ void set_execution_type(EXECUTION_CONF *);
 bool strings_are_the_same(char *, char *);
 EXECUTION_CONF * exec_conf_factory(void);
 void exec_conf_destructor(EXECUTION_CONF *);
+void dealloc_last_argument(EXECUTION_CONF *);
 
 void assert_valid_input(char (*input)[]) {
     size_t len = strlen(*input);
@@ -55,7 +56,7 @@ void execute(EXECUTION_CONF * config) {
     if (strcmp(config->arguments[0], "exit") == 0)
         exit(0);
     if (config->exec_type != WAIT)
-        dealloc_last_argument(config->arguments);
+        dealloc_last_argument(config);
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
