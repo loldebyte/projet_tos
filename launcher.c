@@ -23,7 +23,7 @@ typedef struct EXECUTION_CONF {
 void assert_valid_input(char (*)[]);
 void split_into_arguments(char *, EXECUTION_CONF *);
 void execute(EXECUTION_CONF *);
-void get_execution_type(EXECUTION_CONF *);
+void set_execution_type(EXECUTION_CONF *);
 bool strings_are_the_same(char *, char *);
 EXECUTION_CONF * exec_conf_factory(void);
 void exec_conf_destructor(EXECUTION_CONF *);
@@ -75,7 +75,7 @@ void execute(EXECUTION_CONF * config) {
     }
 }
 
-void get_execution_type(EXECUTION_CONF * config) {
+void set_execution_type(EXECUTION_CONF * config) {
     if (strings_are_the_same(config->arguments[config->number_of_arguments-1], "&")) {
         config->exec_type = DONT_WAIT;
     }
@@ -116,6 +116,7 @@ int main(void) {
         assert_valid_input(&buffer);
         EXECUTION_CONF * conf = exec_conf_factory();
         split_into_arguments(buffer, conf);
+        set_execution_type(conf);
         execute(conf);
         exec_conf_destructor(conf);
     }
