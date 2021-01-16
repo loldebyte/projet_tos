@@ -42,7 +42,7 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
         config->arguments = realloc(config->arguments,
                                     sizeof(config->arguments)
                                     * (curr_cell+1));
-        *(config->arguments[curr_cell]) = token;
+        config->arguments[curr_cell] = token;
         curr_cell++;
     }
     config->number_of_arguments = curr_cell;
