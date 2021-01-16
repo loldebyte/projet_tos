@@ -21,11 +21,12 @@ typedef struct EXECUTION_CONF {
 } EXECUTION_CONF;
 
 void assert_valid_input(char (*)[]);
-size_t split_into_arguments(char *, char ***);
+void split_into_arguments(char *, EXECUTION_CONF *);
 void execute(char **, EXECUTION_CONF *);
-EXEC_FLAGS get_execution_type(char **, size_t);
+void get_execution_type(EXECUTION_CONF *);
 bool strings_are_the_same(char *, char *);
-EXECUTION_CONF * create_run_conf();
+EXECUTION_CONF * exec_conf_factory(void);
+void exec_conf_destructor(EXECUTION_CONF *);
 
 void assert_valid_input(char (*input)[]) {
     size_t len = strlen(*input);
@@ -34,17 +35,17 @@ void assert_valid_input(char (*input)[]) {
     (*input)[len-1] = 0; // the \n makes most commands fail
 }
 
-size_t split_into_arguments(char * input, char *** output) { // output expects &(struct->args)
+void split_into_arguments(char * input, EXECUTION_CONF * config) {
     size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
-        *output = realloc(*output, sizeof(*output) * (curr_cell+1));
-        *((*output)+curr_cell) = token; // *(output[curr_cell]) = token
+        config->args = realloc(config->args, sizeof(config->args) * (curr_cell+1));
+        *(config->args[curr_cell]) = token;
         curr_cell++;
     }
-    return curr_cell;
+    config->number_of_arguments = curr_cell;
 }
- 
+
 void execute(EXECUTION_CONF * config) {
     pid_t pid;
     int status;
@@ -72,11 +73,11 @@ void execute(EXECUTION_CONF * config) {
     }
 }
 
-EXEC_TYPE get_execution_type(EXECUTION_CONF * config) {
+void get_execution_type(EXECUTION_CONF * config) {
     if (strings_are_the_same(config->args[config->number_of_arguments-1], "&")) {
-        return DONT_WAIT;
+        config->exec_type = DONT_WAIT;
     }
-    return WAIT;
+    config->exec_type = WAIT;
 }
 
 bool strings_are_the_same(char * arg, char * to_compare) {
@@ -85,9 +86,22 @@ bool strings_are_the_same(char * arg, char * to_compare) {
     return val == 0 ? true : false;
 }
 
-void dealloc_last_argument(char *** args, size_t * nb_of_args) {
-    *args = realloc(*args, sizeof(*args) * (*nb_of_args-1));
-    *nb_of_args--; // not included in the line above for explicitness' sake
+void dealloc_last_argument(EXECUTION_CONF * config) {
+    config->args = realloc(config->args, sizeof(config->args) * (config->number_of_arguments-1));
+    config->number_of_arguments--; // not included in the line above for explicitness' sake
+}
+
+EXECUTION_CONF * exec_conf_factory(void) {
+    EXECUTION_CONF * conf = malloc(sizeof(EXECUTION_CONF));
+    conf->args = malloc(sizeof(1));
+    conf->number_of_arguments = 0;
+    conf->exec_type = WAIT;
+    return conf;
+}
+
+void exec_conf_destructor(EXECUTION_CONF * conf) {
+    free(conf->args);
+    free(conf);
 }
 
 int main(void) {
@@ -96,10 +110,9 @@ int main(void) {
         char buffer[BUFFER];
         fgets(buffer, BUFFER, stdin);
         assert_valid_input(&buffer);
-        char ** args = NULL;
-        size_t nb_of_args = split_into_arguments(buffer, &args);
-        EXECUTION_CONF * conf = create_run_conf();
-        execute(args, conf);
-        free(args);
+        EXECUTION_CONF * conf = exec_conf_factory();
+        split_into_arguments(buffer, conf);
+        execute(conf);
+        exec_conf_destructor(conf)
     }
 }
