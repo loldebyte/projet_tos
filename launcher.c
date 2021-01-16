@@ -22,7 +22,7 @@ typedef struct EXECUTION_CONF {
 
 void assert_valid_input(char (*)[]);
 void split_into_arguments(char *, EXECUTION_CONF *);
-void execute(char **, EXECUTION_CONF *);
+void execute(EXECUTION_CONF *);
 void get_execution_type(EXECUTION_CONF *);
 bool strings_are_the_same(char *, char *);
 EXECUTION_CONF * exec_conf_factory(void);
@@ -57,7 +57,7 @@ void execute(EXECUTION_CONF * config) {
     pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
-        int check_execvp = execvp(config->arguments, args);
+        int check_execvp = execvp(config->arguments[0], config->arguments);
         assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
@@ -117,6 +117,6 @@ int main(void) {
         EXECUTION_CONF * conf = exec_conf_factory();
         split_into_arguments(buffer, conf);
         execute(conf);
-        exec_conf_destructor(conf)
+        exec_conf_destructor(conf);
     }
 }
