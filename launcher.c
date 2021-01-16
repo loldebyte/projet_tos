@@ -93,7 +93,6 @@ bool strings_are_the_same(char * arg, char * to_compare) {
 }
 
 void dealloc_last_argument(EXECUTION_CONF * config) {
-    printf("%c\n", config->arguments[config->number_of_arguments-1][0]);
     config->arguments[config->number_of_arguments-1][0] = '\0';
     config->arguments[config->number_of_arguments-1] = (char *) NULL;
     config->number_of_arguments--; // not included in the line above for explicitness' sake
