@@ -28,6 +28,8 @@ bool strings_are_the_same(char *, char *);
 EXECUTION_CONF * exec_conf_factory(void);
 void exec_conf_destructor(EXECUTION_CONF *);
 void dealloc_last_argument(EXECUTION_CONF *);
+void print_all_args(EXECUTION_CONF *);
+void print_all_chars_in_str(char *);
 
 void assert_valid_input(char (*input)[]) {
     size_t len = strlen(*input);
@@ -61,6 +63,7 @@ void execute(EXECUTION_CONF * config) {
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
         int check_execvp = execvp(config->arguments[0], config->arguments);
+        print_all_args(config);
         assert((check_execvp =! -1) && "Execvp failed");
     }
     else {
@@ -80,9 +83,10 @@ void execute(EXECUTION_CONF * config) {
 
 void set_execution_type(EXECUTION_CONF * config) {
     if (strings_are_the_same(config->arguments[config->number_of_arguments-1], "&")) {
+        printf("we goin in bb\n");
         config->exec_type = DONT_WAIT;
     }
-    config->exec_type = WAIT;
+    else config->exec_type = WAIT;
 }
 
 bool strings_are_the_same(char * arg, char * to_compare) {
@@ -92,6 +96,8 @@ bool strings_are_the_same(char * arg, char * to_compare) {
 }
 
 void dealloc_last_argument(EXECUTION_CONF * config) {
+    printf("%c", config->arguments[config->number_of_arguments-1][0]);
+    config->arguments[config->number_of_arguments][0] = '\0';
     config->arguments = realloc(config->arguments,
                                 sizeof(config->arguments)
                                 * (config->number_of_arguments-1));
@@ -111,6 +117,16 @@ void exec_conf_destructor(EXECUTION_CONF * conf) {
     free(conf);
 }
 
+void print_all_args(EXECUTION_CONF * config) {
+    for (int i=0; i<config->number_of_arguments; i++)
+        printf("%s\n", config->arguments[i]);
+}
+
+void print_all_chars_in_str(char * str) {
+    for (int i = strlen(str)-1; i>-1; i--)
+        printf("char #%d: %c\n", i, str[i]);
+}
+
 int main(void) {
     while (true) {
         printf("$ ");
@@ -120,6 +136,7 @@ int main(void) {
         EXECUTION_CONF * conf = exec_conf_factory();
         split_into_arguments(buffer, conf);
         set_execution_type(conf);
+        printf("exec_type : %s\n", conf->exec_type == WAIT ? "WAIT" : "NOT WAIT");
         execute(conf);
         exec_conf_destructor(conf);
     }
