@@ -29,12 +29,13 @@ bool test_validate_input(void) {
                && "Invalid string didnt fail !");
     }
     {
-        char too_long_string[BUFFER] = "Vivamus pellentesque luctus mauris, sed convallis ligula. Nulla fermentum massa vitae scelerisque ac.";
+        char too_long_string[BUFFER] = "Vivamus pellentesque luctus mauris, sed convallis ligula. Nulla fermentum massa vitae scelerisque ac."; // thanks to lipsum.com !
         assert(validate_input(&too_long_string) == false
                && "Invalid string didnt fail !");
     }
 }
 
 int main(void) {
-    assert(test_validate_input() && "validate_input test failing"); 
+    assert(test_validate_input() && "validate_input test failing");
+    printf("----- OK : ALL TEST PASS ! -----\n");
 }
