@@ -10,4 +10,4 @@ Pour supprimer les fichiers résiduels (.o etc...) exécuter `make clean`.
 
 Ne supporte pas les chemins relatifs `.` et `..`.
 
-L'objectif de cette branche est de supporter l'exécution asynchrone d'une commande, lorsque l'instruction est terminée par un `&`.
+Attends que l'instruction entrée s'exécute avant de demander une nouvelle commande, sauf quand le dernier argument de cette dernière est un `&`.
