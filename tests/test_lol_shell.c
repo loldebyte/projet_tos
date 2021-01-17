@@ -71,9 +71,9 @@ bool test_split_into_arguments(void) {
         char * two_arg_input = "echo arg2";
         split_into_arguments(two_arg_input, conf);
         assert(conf->number_of_arguments == 2 && "number_of_arguments has incorrect value !");
-        assert(test_strings_are_the_same(conf->arguments[0], "echo")
+        assert(strings_are_the_same(conf->arguments[0], "echo")
                && "args' 1rst member badly set !");
-        assert(test_strings_are_the_same(conf->arguments[1], "arg2")
+        assert(strings_are_the_same(conf->arguments[1], "arg2")
                && "args' 2nd member badly set !");
         assert(conf->exec_type == WAIT && "exec_type modified !");
     }
