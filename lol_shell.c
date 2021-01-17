@@ -78,8 +78,7 @@ void set_execution_type(EXECUTION_CONF * config) {
 }
 
 bool strings_are_the_same(char * arg, char * to_compare) {
-    int val = strcmp(arg, to_compare);
-    return val == 0 ? true : false;
+    return strcmp(arg, to_compare) == 0 ? true : false;
 }
 
 void dealloc_last_argument(EXECUTION_CONF * config) {
