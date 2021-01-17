@@ -99,7 +99,9 @@ EXECUTION_CONF * exec_conf_factory(void) {
 
 void exec_conf_destructor(EXECUTION_CONF * conf) {
     free(conf->arguments);
+    conf->arguments = NULL;
     free(conf);
+    conf = NULL;
 }
 
 void print_all_args(EXECUTION_CONF * config) {
