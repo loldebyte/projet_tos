@@ -10,7 +10,8 @@ int main(void) {
         printf("$ ");
         char buffer[BUFFER];
         fgets(buffer, BUFFER, stdin);
-        assert_valid_input(&buffer);
+        assert(validate_input(&buffer)
+               && "An error was detected in your string ! Check stderr for details\n");
         EXECUTION_CONF * conf = exec_conf_factory();
         split_into_arguments(buffer, conf);
         set_execution_type(conf);

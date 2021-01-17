@@ -1,6 +1,15 @@
 #ifndef LOL_SHELL_H
 #define LOL_SHELL_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <sys/wait.h>
+#include <assert.h>
+#include <unistd.h>
+#include <stdbool.h>
+
 #define SEP " "
 #define BUFFER 102
 
@@ -14,7 +23,7 @@ typedef struct EXECUTION_CONF {
     size_t number_of_arguments;
 } EXECUTION_CONF;
 
-void assert_valid_input(char (*)[]);
+bool validate_input(char (*)[]);
 void split_into_arguments(char *, EXECUTION_CONF *);
 void execute(EXECUTION_CONF *);
 void set_execution_type(EXECUTION_CONF *);

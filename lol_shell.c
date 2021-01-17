@@ -1,26 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <sys/wait.h>
-#include <assert.h>
-#include <unistd.h>
-#include <stdbool.h>
 #include "lol_shell.h"
 
 
-void assert_valid_input(char (*input)[]) {
+bool validate_input(char (*input)[]) {
     // parameter(s) : array of char * (strings)
     // asserts the inputed array of strings is valid,
     // and deletes the trailing \n (last char of last string)
     size_t len = strlen(*input);
-    assert(len > 2 && "Please enter a command.\n");
-    assert((*input)[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
+    if (len <= 2) {
+        fprintf(stderr, "Please enter a command\n");
+        return false;
+    }
+    if ((*input)[len-1] != '\n') {
+        fprintf(stderr, "Your command cant exceed 100 characters. Please try again.\n");
+        return false;
+    }
     (*input)[len-1] = 0; // the \n makes most commands fail
+    return true;
 }
 
 void split_into_arguments(char * input, EXECUTION_CONF * config) {
-    size_t curr_cell = 0;
     // parameters : 
     //    - input : the string to be split
     //    - config : the struct stocking all parameters related to execution, including :
@@ -29,6 +27,7 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
     //    - - exec_type : a flag dictating how to manage execution
     // returns the length of the `output` array as a size_t after storing all tokens
     // in the array pointed to by `output`
+    size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
         config->arguments = realloc(config->arguments,
@@ -79,8 +78,7 @@ void set_execution_type(EXECUTION_CONF * config) {
 }
 
 bool strings_are_the_same(char * arg, char * to_compare) {
-    int val = strcmp(arg, to_compare);
-    return val == 0 ? true : false;
+    return strcmp(arg, to_compare) == 0 ? true : false;
 }
 
 void dealloc_last_argument(EXECUTION_CONF * config) {
@@ -99,7 +97,9 @@ EXECUTION_CONF * exec_conf_factory(void) {
 
 void exec_conf_destructor(EXECUTION_CONF * conf) {
     free(conf->arguments);
+    conf->arguments = NULL;
     free(conf);
+    conf = NULL;
 }
 
 void print_all_args(EXECUTION_CONF * config) {
