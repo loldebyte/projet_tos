@@ -3,11 +3,11 @@
 
 bool test_validate_input(void);
 bool test_split_into_arguments(void);
-bool test_execute(EXECUTION_CONF *);
-bool test_set_execution_type(EXECUTION_CONF *);
-bool test_strings_are_the_same(EXECUTION_CONF *);
+bool test_set_execution_type(void);
+bool test_strings_are_the_same(void);
 bool test_exec_conf_factory(void);
 bool test_dealloc_last_argument(EXECUTION_CONF *);
+bool test_execute(EXECUTION_CONF *);
 
 bool test_validate_input(void) {
     {
