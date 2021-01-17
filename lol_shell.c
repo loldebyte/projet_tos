@@ -1,22 +1,21 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <sys/wait.h>
-#include <assert.h>
-#include <unistd.h>
-#include <stdbool.h>
 #include "lol_shell.h"
 
 
-void assert_valid_input(char (*input)[]) {
+bool validate_input(char (*input)[]) {
     // parameter(s) : array of char * (strings)
     // asserts the inputed array of strings is valid,
     // and deletes the trailing \n (last char of last string)
     size_t len = strlen(*input);
-    assert(len > 2 && "Please enter a command.\n");
-    assert((*input)[len-1] == '\n' && "Your command cant exceed 100 characters. Please try again.\n");
+    if (len <= 2) {
+        fprintf(stderr, "Please enter a command\n");
+        return false;
+    }
+    if ((*input)[len-1] != '\n') {
+        fprintf(stderr, "Your command cant exceed 100 characters. Please try again.\n");
+        return false;
+    }
     (*input)[len-1] = 0; // the \n makes most commands fail
+    return true;
 }
 
 void split_into_arguments(char * input, EXECUTION_CONF * config) {
