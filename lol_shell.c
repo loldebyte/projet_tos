@@ -19,7 +19,6 @@ bool validate_input(char (*input)[]) {
 }
 
 void split_into_arguments(char * input, EXECUTION_CONF * config) {
-    size_t curr_cell = 0;
     // parameters : 
     //    - input : the string to be split
     //    - config : the struct stocking all parameters related to execution, including :
@@ -28,6 +27,7 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
     //    - - exec_type : a flag dictating how to manage execution
     // returns the length of the `output` array as a size_t after storing all tokens
     // in the array pointed to by `output`
+    size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
         config->arguments = realloc(config->arguments,
