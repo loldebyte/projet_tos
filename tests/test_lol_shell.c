@@ -44,13 +44,13 @@ bool test_exec_conf_factory(void) {
 
 bool test_strings_are_the_same(void) {
     {
-        char * identic_strings1 = "str1", identic_strings2 = "str1";
+        char * identic_strings1 = "str1", * identic_strings2 = "str1";
         assert(strings_are_the_same(identic_strings1,
                                     identic_strings2)
                && "identical strings return false !");
     }
     {
-        char * str1 = "str1", str2 = "str2";
+        char * str1 = "str1", * str2 = "str2";
         assert(strings_are_the_same(str1, str2) == false
                && "dissimilar strings return true !");
     }
@@ -59,16 +59,17 @@ bool test_strings_are_the_same(void) {
 bool test_split_into_arguments(void) {
     {
         EXECUTION_CONF * conf = exec_conf_factory();
-        char * single_arg_input = "echo";
+        char single_arg_input[BUFFER] = "echo";
         split_into_arguments(single_arg_input, conf);
         assert(conf->number_of_arguments == 1 && "number_of_arguments has incorrect value !");
         assert(strings_are_the_same(conf->arguments[0], single_arg_input)
                && "args members badly set !");
         assert(conf->exec_type == WAIT && "exec_type modified !");
+        exec_conf_destructor(conf);
     }
     {
         EXECUTION_CONF * conf = exec_conf_factory();
-        char * two_arg_input = "echo arg2";
+        char two_arg_input[BUFFER] = "echo arg2";
         split_into_arguments(two_arg_input, conf);
         assert(conf->number_of_arguments == 2 && "number_of_arguments has incorrect value !");
         assert(strings_are_the_same(conf->arguments[0], "echo")
@@ -76,6 +77,7 @@ bool test_split_into_arguments(void) {
         assert(strings_are_the_same(conf->arguments[1], "arg2")
                && "args' 2nd member badly set !");
         assert(conf->exec_type == WAIT && "exec_type modified !");
+        exec_conf_destructor(conf);
     }
     return true;
 }
@@ -83,7 +85,7 @@ bool test_split_into_arguments(void) {
 bool test_set_execution_type(void) {
     {
         EXECUTION_CONF * conf_no_wait = exec_conf_factory();
-        char * no_wait = "echo &";
+        char no_wait[] = "echo &";
         split_into_arguments(no_wait, conf_no_wait);
         set_execution_type(conf_no_wait);
         assert(conf_no_wait->exec_type == DONT_WAIT
@@ -91,7 +93,7 @@ bool test_set_execution_type(void) {
     }
     {
         EXECUTION_CONF * conf_wait = exec_conf_factory();
-        char * wait = "echo";
+        char wait[] = "echo";
         split_into_arguments(wait, conf_wait);
         set_execution_type(conf_wait);
         assert(conf_wait->exec_type == WAIT
