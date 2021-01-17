@@ -13,9 +13,14 @@ bool test_dealloc_last_argument(EXECUTION_CONF *);
 bool test_validate_input(void) {
     {
         char valid_string[BUFFER] = "my test string\n";
+        int len_before = strlen(valid_string);
         assert(validate_input(&valid_string) && "String validation of valid string failed\n");
-        int len = strlen(valid_string);
-        assert(valid_string[len-1] == 0 && "trailing \\n not removed !\n");
+        assert(valid_string[len_before-1] == 0 && "trailing \\n not removed !\n");
+        {
+            int len_after = strlen(valid_string);
+            assert(len_before == (len_after+1)
+                   && "validate_input alters too much of the string !\n");
+        }
     }
     {
         char too_short_string[BUFFER] = "a\n";
@@ -27,4 +32,8 @@ bool test_validate_input(void) {
         assert(validate_input(&too_long_string) == false
                && "Invalid string didnt fail !");
     }
+}
+
+int main(void) {
+    assert(test_validate_input() && "validate_input test failing"); 
 }
