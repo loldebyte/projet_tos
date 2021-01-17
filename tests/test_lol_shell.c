@@ -22,6 +22,7 @@ bool test_validate_input(void) {
                    && "validate_input alters too much of the string !\n");
         }
     }
+    freopen("/dev/null", "w", stderr);
     {
         char too_short_string[BUFFER] = "a\n";
         assert(validate_input(&too_short_string) == false
