@@ -40,15 +40,15 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
 }
 
 void execute(EXECUTION_CONF * config) {
+    // creates a child process executing the `arguments` member of the parameter by forking
+    // the current process, child process gets exec'd and parent process waits
+    // parameter(s) :
+    // - config : the struct containing all relevant data about how/what to execute
     int status;
     if (strcmp(config->arguments[0], "exit") == 0)
         exit(0);
     if (config->exec_type != WAIT)
         dealloc_last_argument(config);
-    // creates a child process executing the `arguments` member of the parameter by forking
-    // the current process, child process gets exec'd and parent process waits
-    // parameter(s) :
-    // - config : the struct containing all relevant data about how/what to execute
     pid_t pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
