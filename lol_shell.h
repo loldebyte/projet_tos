@@ -23,7 +23,7 @@ typedef struct EXECUTION_CONF {
     size_t number_of_arguments;
 } EXECUTION_CONF;
 
-void validate_input(char (*)[]);
+bool validate_input(char (*)[]);
 void split_into_arguments(char *, EXECUTION_CONF *);
 void execute(EXECUTION_CONF *);
 void set_execution_type(EXECUTION_CONF *);
