@@ -13,6 +13,22 @@
 #define SEP " "
 #define BUFFER 102
 
+// TODO: implement open-adressing hashmap for small ints (int8_t) exclusively
+typedef struct _bucket {
+    char * key;
+    bool in_use;
+    int8_t data;
+} bucket;
+
+typedef struct _hashmap {
+    int table_size;
+    int max_size;
+    bucket * data_array;
+} hashmap;
+
+// TODO: implement open-adressing hashmap for ints/strings that fit on 64bits (int8_t & 7 chars or less strings)
+// TODO: implement a chaining hasmap for long (>7 chars) strings or larger objects
+
 typedef enum EXEC_FLAGS {
     WAIT=10, DONT_WAIT
 } EXEC_FLAGS;
