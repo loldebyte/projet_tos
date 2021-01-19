@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "lol_shell.h"
+#include "hashmap.h"
 
 
 int main(void) {
