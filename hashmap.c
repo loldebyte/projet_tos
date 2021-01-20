@@ -1,9 +1,4 @@
-#include <"hashmap.h">
-
-#define HASHMAP_HARD_SIZE_LIMIT 8589934592 // 2^33
-#define HASHMAP_MIN_SIZE 16
-#define HASHMAP_MAXIMUM_LOAD_FACTOR 70
-#define HASHMAP_MINIMUM_LOAD_FACTOR 10
+#include "hashmap.h"
 
 static word_bucket DELETED_WORD_BUCKET = {NULL, 0};
 
@@ -27,14 +22,14 @@ static uint32_t get_hash(const char * key,
 }
 
 static word_bucket * _new_word_bucket(const char * key, int32_t value) {
-    word_bucket * new_bucket = calloc(sizeof(word_bucket));
+    word_bucket * new_bucket = malloc(sizeof(word_bucket));
     new_bucket->data = value;
     new_bucket->key = strdup(key);
     return new_bucket;
 }
 
 static void _free_word_bucket(word_bucket * wb) {
-    wb->value = 0;
+    wb->data = 0;
     wb->key = NULL;
     free(wb->key);
     wb = NULL;
@@ -50,7 +45,7 @@ word_hashmap * new_word_hashmap_sized(const uint32_t new_size) {
     assert(!(new_size & 1) && "You must enter a power of 2 as a size.");
     hm->max_size = new_size;
     hm->table_size = 0;
-    hm->bucket_array = calloc((size_t) hm->max_size, size_t(word_bucket *));
+    hm->bucket_array = calloc((size_t) hm->max_size, sizeof(word_bucket *));
     return hm;
 }
 
@@ -60,13 +55,13 @@ static void _word_hasmap_resize_up(word_hashmap * hm) {
     word_hashmap * new_hm = new_word_hashmap_sized(hm->max_size);
     new_hm->max_size <<= 1;
     new_hm->table_size = hm->table_size;
-    new_hm->bucket_array = calloc((size_t) new_hm->max_size, size_t(word_bucket *));
+    new_hm->bucket_array = calloc((size_t) new_hm->max_size, sizeof(word_bucket *));
     assert(new_hm != NULL && "fatal : calloc failed during resizing");
 
     for (int i=0; i<hm->table_size; i++) {
         word_bucket * bucket = hm->bucket_array[i];
         if (bucket != NULL && bucket != &DELETED_WORD_BUCKET)
-            word_hashmap_insert(bucket->key, bucket->value, new_hm);
+            word_hashmap_insert(bucket->key, bucket->data, new_hm);
     }
     
     const int tmp_maxsize = hm->max_size;
@@ -74,7 +69,7 @@ static void _word_hasmap_resize_up(word_hashmap * hm) {
     hm->table_size = new_hm->table_size;
     new_hm->max_size = tmp_maxsize;
 
-    const word_bucket ** tmp_bucket_array = ht->bucket_array;
+    word_bucket ** tmp_bucket_array = hm->bucket_array;
     hm->bucket_array = new_hm->bucket_array;
     new_hm->bucket_array = tmp_bucket_array;
     free_word_hashmap(new_hm);
@@ -86,13 +81,13 @@ static void _word_hasmap_resize_down(word_hashmap * hm) {
     word_hashmap * new_hm = new_word_hashmap_sized(hm->max_size);
     new_hm->max_size >>= 1;
     new_hm->table_size = hm->table_size;
-    new_hm->bucket_array = calloc((size_t) new_hm->max_size, size_t(word_bucket *));
+    new_hm->bucket_array = calloc((size_t) new_hm->max_size, sizeof(word_bucket *));
     assert(new_hm != NULL && "fatal : calloc failed during resizing");
 
     for (int i=0; i<hm->table_size; i++) {
         word_bucket * bucket = hm->bucket_array[i];
         if (bucket != NULL && bucket != &DELETED_WORD_BUCKET)
-            word_hashmap_insert(bucket->key, bucket->value, new_hm);
+            word_hashmap_insert(bucket->key, bucket->data, new_hm);
     }
     
     hm->max_size = new_hm->max_size;
@@ -105,7 +100,7 @@ static void _word_hasmap_resize_down(word_hashmap * hm) {
 void free_word_hashmap(word_hashmap * hm) {
     for (int i=0; i<hm->table_size; i++) {
         word_bucket * bucket = hm->bucket_array[i];
-        if (word_bucket != NULL)
+        if (bucket != NULL)
             _free_word_bucket(bucket);
     }
     hm->table_size = 0;
@@ -125,7 +120,7 @@ bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
 
     word_bucket * current_bucket;
     int i = 1;
-    while (current_bucket = hm->bucket_array[index];
+    while (current_bucket = hm->bucket_array[index],
            current_bucket != NULL && current_bucket != &DELETED_WORD_BUCKET) {
         if (strcmp(current_bucket->key, key) == 0) {
             _free_word_bucket(current_bucket);
@@ -136,8 +131,8 @@ bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
         i++;
     }
     
-    ht->bucket_array[index] = new_bucket;
-    ht->table_size++;
+    hm->bucket_array[index] = new_bucket;
+    hm->table_size++;
     return true;
 }
 
@@ -145,14 +140,14 @@ int32_t word_hashmap_search(const char * key, word_hashmap * hm) {
     uint32_t index = get_hash(key, hm->max_size, 0);
     word_bucket * current_bucket;
     int i = 1;
-    while (current_bucket = hm->bucket_array[index];
+    while (current_bucket = hm->bucket_array[index],
            current_bucket != NULL && current_bucket != &DELETED_WORD_BUCKET) {
         if (strcmp(current_bucket->key, key) == 0)
-            return current_bucket->value;
+            return current_bucket->data;
         index = get_hash(key, hm->max_size, i);
         i++;
     }
-    return (int32_t) NULL;
+    return 0;
 }
 
 void word_hashmap_delete(const char * key, word_hashmap * hm) {
@@ -165,7 +160,7 @@ void word_hashmap_delete(const char * key, word_hashmap * hm) {
     uint32_t index = get_hash(key, hm->max_size, 0);
     word_bucket * current_bucket;
     int i = 1;
-    while (current_bucket = hm->bucket_array[index]; current_bucket != NULL) {
+    while (current_bucket = hm->bucket_array[index], current_bucket != NULL) {
         if (current_bucket != &DELETED_WORD_BUCKET) {
             if (strcmp(current_bucket->key, key) == 0) {
                 _free_word_bucket(current_bucket);

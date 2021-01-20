@@ -4,6 +4,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#define HASHMAP_HARD_SIZE_LIMIT 8589934592 // 2^33
+#define HASHMAP_MIN_SIZE 16
+#define HASHMAP_MAXIMUM_LOAD_FACTOR 70
+#define HASHMAP_MINIMUM_LOAD_FACTOR 10
+#define HASH_PRIME_1 13
+#define HASH_PRIME_2 53
 
 // TODO: implement open-adressing hashmap for small ints (int8_t) exclusively
 // diffusion of the hashing should be garanteed via modular hashing
@@ -24,7 +33,7 @@ typedef struct _word_hashmap {
 
 static uint32_t _hash(const char *, const uint32_t, const uint32_t);
 static uint32_t get_hash(const char *, const uint32_t, const uint32_t);
-static word_bucket * _new_word_bucket(const char *, uint32_t);
+static word_bucket * _new_word_bucket(const char *, int32_t);
 static void _free_word_bucket(word_bucket *);
 word_hashmap * new_word_hashmap(void);
 word_hashmap * new_word_hashmap_sized(const uint32_t);
