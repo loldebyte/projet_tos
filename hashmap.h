@@ -36,7 +36,6 @@ bool word_hashmap_insert(const char *, uint32_t, word_hashmap *);
 int32_t word_hashmap_search(const char *, word_hashmap *);
 void word_hashmap_delete(const char *, word_hashmap *);
 
-// TODO: implement open-adressing hashmap for ints/strings that fit on 64bits (int8_t & 7 chars or less strings)
 // TODO: implement a chaining hasmap for long (>7 chars) strings or larger objects
 #endif
 
