@@ -9,17 +9,25 @@
 // m = 2^p
 typedef struct _word_bucket {
     char * key;
-    bool in_use;
     int32_t data;
 } word_bucket;
 
 typedef struct _word_hashmap {
-    int64_t table_size;
-    int64_t max_size;
-    bucket * bucket_array;
+    uint32_t table_size;
+    uint32_t max_size;
+    bucket ** bucket_array;
 } word_hashmap;
 
-uint32_t get_hash(uint32_t);
+static uint32_t _hash(const char *, const uint32_t, const uint32_t);
+static uint32_t get_hash(const char *, const uint32_t, const uint32_t);
+static word_bucket * _new_word_bucket(const char *, uint32_t);
+static void _free_word_bucket(word_bucket *);
+word_hashmap * new_word_hashmap(void);
+void free_word_hashmap(word_hashmap *);
+
+bool word_hashmap_insert(const char *, uint32_t, word_hashmap *);
+int32_t word_hashmap_search(const char *, word_hashmap *);
+void word_hashmap_delete(const char *, word_hashmap *);
 
 // TODO: implement open-adressing hashmap for ints/strings that fit on 64bits (int8_t & 7 chars or less strings)
 // TODO: implement a chaining hasmap for long (>7 chars) strings or larger objects
