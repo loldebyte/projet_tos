@@ -1,5 +1,3 @@
-#include <string.h>
-#include <stdbool.h>
 #include <"hashmap.h">
 
 #define HASHMAP_HARD_SIZE_LIMIT 8589934592 // 2^33
@@ -47,7 +45,7 @@ word_hashmap * new_word_hashmap() {
     new_word_hashmap_sized(HASHMAP_MIN_SIZE);
 }
 
-word_hashmap * new_word_hashmap_sized(const int new_size) {
+word_hashmap * new_word_hashmap_sized(const uint32_t new_size) {
     word_hashmap * hm = malloc(sizeof(word_hashmap));
     assert(!(new_size & 1) && "You must enter a power of 2 as a size.");
     hm->max_size = new_size;
