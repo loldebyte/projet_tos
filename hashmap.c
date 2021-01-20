@@ -1,5 +1,8 @@
 #include <string.h>
+#include <stdbool.h>
 #include <"hashmap.h">
+
+static word_bucket DELETED_WORD_BUCKET = {NULL, 0};
 
 static uint32_t _hash(const char * key,
                       const uint32_t prime,
@@ -58,13 +61,49 @@ void free_word_hashmap(word_hashmap * hm) {
 }
 
 bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
+    word_bucket * new_bucket = _new_word_bucket(key, value);
+    uint32_t index = get_hash(key, hm->max_size, 0);
+
+    word_bucket * current_bucket;
+    int i = 1;
+    while (current_bucket = hm->bucket_array[index];
+           current_bucket != NULL && current_bucket != &DELETED_WORD_BUCKET) {
+        index = get_hash(key, hm->max_size, i);
+        i++;
+    }
     
+    ht->bucket_array[index] = new_bucket;
+    ht->table_size++;
+    return true;
 }
 
 int32_t word_hashmap_search(const char * key, word_hashmap * hm) {
-
+    uint32_t index = get_hash(key, hm->max_size, 0);
+    word_bucket * current_bucket;
+    int i = 1;
+    while (current_bucket = hm->bucket_array[index];
+           current_bucket != NULL && current_bucket != &DELETED_WORD_BUCKET) {
+        if (strcmp(current_bucket->key, key) == 0)
+            return current_bucket->value;
+        index = get_hash(key, hm->max_size, i);
+        i++;
+    }
+    return (int32_t) NULL;
 }
 
 void word_hashmap_delete(const char * key, word_hashmap * hm) {
-
+    uint32_t index = get_hash(key, hm->max_size, 0);
+    word_bucket * current_bucket;
+    int i = 1;
+    while (current_bucket = hm->bucket_array[index]; current_bucket != NULL) {
+        if (current_bucket != &DELETED_WORD_BUCKET) {
+            if (strcmp(current_bucket->key, key) == 0) {
+                _free_word_bucket(current_bucket);
+                hm->bucket_array[index] = &DELETED_WORD_BUCKET;
+            }
+        }
+        index = get_hash(key, hm->max_size, i);
+        i++;
+    }
+    hm->table_size--;
 }
