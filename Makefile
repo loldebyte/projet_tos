@@ -1,6 +1,6 @@
 CC=gcc -o
 CFLAGS=-Wall
-DEPS= lol_shell.c
+DEPS= lol_shell.c hashmap.c
 TARGETS= launcher.c 
 TEST= tests/test_lol_shell.c
 
