@@ -1,11 +1,12 @@
 #ifndef LOL_HASHMAP_H
 #define LOL_HASHMAP_H
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #define HASHMAP_HARD_SIZE_LIMIT 8589934592 // 2^33
 #define HASHMAP_MIN_SIZE 16
@@ -31,20 +32,20 @@ typedef struct _word_hashmap {
     word_bucket ** bucket_array;
 } word_hashmap;
 
-static uint32_t _hash(const char *, const uint32_t, const uint32_t);
-static uint32_t get_hash(const char *, const uint32_t, const uint32_t);
-static word_bucket * _new_word_bucket(const char *, int32_t);
-static void _free_word_bucket(word_bucket *);
+uint32_t _hash(const char *, const uint32_t, const uint32_t);
+uint32_t get_hash(const char *, const uint32_t, const uint32_t);
+word_bucket * _new_word_bucket(const char *, int32_t);
+void _free_word_bucket(word_bucket *);
 word_hashmap * new_word_hashmap(void);
 word_hashmap * new_word_hashmap_sized(const uint32_t);
-static void _word_hashmap_resize_up(word_hashmap *);
-static void _word_hasmap_resize_down(word_hashmap *);
+void _word_hashmap_resize_up(word_hashmap *);
+void _word_hashmap_resize_down(word_hashmap *);
 void free_word_hashmap(word_hashmap *);
 
 bool word_hashmap_insert(const char *, uint32_t, word_hashmap *);
 int32_t word_hashmap_search(const char *, word_hashmap *);
 void word_hashmap_delete(const char *, word_hashmap *);
 
-// TODO: implement a chaining hasmap for long (>7 chars) strings or larger objects
+// TODO: implement a chaining hashmap for long (>7 chars) strings or larger objects
 #endif
 

@@ -1,8 +1,8 @@
 #include "hashmap.h"
 
-static word_bucket DELETED_WORD_BUCKET = {NULL, 0};
+word_bucket DELETED_WORD_BUCKET = {NULL, 0};
 
-static uint32_t _hash(const char * key,
+uint32_t _hash(const char * key,
                       const uint32_t prime,
                       const uint32_t number_buckets) {
     uint32_t hash = 0;
@@ -13,22 +13,23 @@ static uint32_t _hash(const char * key,
     return (uint32_t) hash;
 }
 
-static uint32_t get_hash(const char * key,
-                         const uint32_t number_buckets,
-                         const uint32_t attempt) {
+uint32_t get_hash(const char * key,
+                  const uint32_t number_buckets,
+                  const uint32_t attempt) {
     const uint32_t hash1 = _hash(key, HASH_PRIME_1, number_buckets);
     const uint32_t hash2 = _hash(key, HASH_PRIME_2, number_buckets);
-    return (hash1 + attempt*(hash2 + 1)%number_buckets);
+    return (hash1 + attempt*(hash2 + 1)) % number_buckets;
 }
 
-static word_bucket * _new_word_bucket(const char * key, int32_t value) {
+word_bucket * _new_word_bucket(const char * key, int32_t value) {
+    assert(key != NULL);
     word_bucket * new_bucket = malloc(sizeof(word_bucket));
     new_bucket->data = value;
     new_bucket->key = strdup(key);
     return new_bucket;
 }
 
-static void _free_word_bucket(word_bucket * wb) {
+void _free_word_bucket(word_bucket * wb) {
     wb->data = 0;
     wb->key = NULL;
     free(wb->key);
@@ -37,7 +38,7 @@ static void _free_word_bucket(word_bucket * wb) {
 }
 
 word_hashmap * new_word_hashmap() {
-    new_word_hashmap_sized(HASHMAP_MIN_SIZE);
+    return new_word_hashmap_sized(HASHMAP_MIN_SIZE);
 }
 
 word_hashmap * new_word_hashmap_sized(const uint32_t new_size) {
@@ -49,7 +50,7 @@ word_hashmap * new_word_hashmap_sized(const uint32_t new_size) {
     return hm;
 }
 
-static void _word_hasmap_resize_up(word_hashmap * hm) {
+void _word_hashmap_resize_up(word_hashmap * hm) {
     if (hm->max_size == HASHMAP_HARD_SIZE_LIMIT)
         return;
     word_hashmap * new_hm = new_word_hashmap_sized(hm->max_size);
@@ -71,11 +72,11 @@ static void _word_hasmap_resize_up(word_hashmap * hm) {
 
     word_bucket ** tmp_bucket_array = hm->bucket_array;
     hm->bucket_array = new_hm->bucket_array;
-    new_hm->bucket_array = tmp_bucket_array;
+    *(new_hm->bucket_array) = *(tmp_bucket_array);
     free_word_hashmap(new_hm);
-} 
+}
 
-static void _word_hasmap_resize_down(word_hashmap * hm) {
+void _word_hashmap_resize_down(word_hashmap * hm) {
     if (hm->max_size == HASHMAP_MIN_SIZE)
         return;
     word_hashmap * new_hm = new_word_hashmap_sized(hm->max_size);
@@ -110,11 +111,11 @@ void free_word_hashmap(word_hashmap * hm) {
     hm = NULL;
     free(hm);
 }
-
+// TODO: FIX _word_hashmap_resize_up : doesnt copy all buckets & creates bucket with NULL keys
 bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
     const uint32_t load = (hm->table_size+1)*100 / hm->max_size;
     if (load > 70)
-        _word_hasmap_resize_up(hm);
+        _word_hashmap_resize_up(hm);
     word_bucket * new_bucket = _new_word_bucket(key, value);
     uint32_t index = get_hash(key, hm->max_size, 0);
 
@@ -154,7 +155,7 @@ void word_hashmap_delete(const char * key, word_hashmap * hm) {
     if (hm->table_size > 0) {
         const uint32_t load = hm->table_size*100 / hm->max_size;
         if (load < 10)
-            _word_hasmap_resize_down(hm);
+            _word_hashmap_resize_down(hm);
     }
 
     uint32_t index = get_hash(key, hm->max_size, 0);
