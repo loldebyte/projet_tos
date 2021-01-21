@@ -1,4 +1,4 @@
-CC=gcc -o
+CC=gcc -march=native -o
 CFLAGS=-Wall
 DEPS=lol_shell.c hashmap.c
 TARGETS=launcher.c 
