@@ -32,6 +32,7 @@ bool test_validate_input(void) {
         assert(validate_input(&too_long_string) == false
                && "Invalid string didnt fail !");
     }
+    return true;
 }
 
 bool test_exec_conf_factory(void) {
@@ -54,6 +55,7 @@ bool test_strings_are_the_same(void) {
         assert(strings_are_the_same(str1, str2) == false
                && "dissimilar strings return true !");
     }
+    return true;
 }
 
 bool test_split_into_arguments(void) {
@@ -99,6 +101,7 @@ bool test_set_execution_type(void) {
         assert(conf_wait->exec_type == WAIT
                && "set_execution_type incorrectly modifies WAIT");
     }
+    return true;
 }
 
 int main(int argc, char ** argv) {
