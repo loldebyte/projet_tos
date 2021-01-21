@@ -101,11 +101,11 @@ bool test_set_execution_type(void) {
     }
 }
 
-int main(void) {
+int main(int argc, char ** argv) {
     assert(test_validate_input() && "validate_input test failing !");
     assert(test_strings_are_the_same() && "strings_are_the_same test failing !");
     assert(test_exec_conf_factory() && "exec_conf_factory test failing !");
     assert(test_split_into_arguments() && "split_into_args test failing !");
     assert(test_set_execution_type() && "set_execution_type test failing !");
-    printf("----- OK : ALL TEST PASS ! -----\n");
+    printf("----- OK : ALL %s TEST PASS ! -----\n", argv[0]);
 }
