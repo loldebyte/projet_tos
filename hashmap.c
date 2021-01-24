@@ -3,8 +3,8 @@
 word_bucket DELETED_WORD_BUCKET = {NULL, 0};
 
 uint32_t _hash(const char * key,
-                      const uint32_t prime,
-                      const uint32_t number_buckets) {
+               const uint32_t prime,
+               const uint32_t number_buckets) {
     uint32_t hash = 0;
     int len = strlen(key);
     for (int i=0; i<len; i++)
