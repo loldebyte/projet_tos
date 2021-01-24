@@ -67,11 +67,23 @@ bool test_delete_element(void) {
     return word_hashmap_search(key, hm) == 0;
 }
 
+bool test_deletion_doesnt_break_chain(void) {
+    word_hashmap * hm = new_word_hashmap();
+    char * key1 = "!";          // ! => 33 = 1 mod 16
+    char * key_collision = "1"; // 1 => 49 = 1 mod 16
+    word_hashmap_insert(key1, 42, hm);
+    word_hashmap_insert(key_collision, 420, hm);
+    word_hashmap_delete(key1, hm);
+    return word_hashmap_search(key_collision, hm) == 420;
+}
+
 int main(int argc, char ** argv) {
     assert(test_hashmap_creation_deletion() && "creation fails !");
     assert(test_hashmap_insertion() && "insertion fails !");
     assert(test_many_insertions() && "many insertions fails !");
     assert(test_single_search() && "single search fails !");
     assert(test_multisearch() && "multisearch fails !");
+    assert(test_deletion_doesnt_break_chain()
+           && "deletion breaks chain causing search failure !");
     printf("----- OK : ALL %s TEST PASS ! -----\n", argv[0]);
 }
