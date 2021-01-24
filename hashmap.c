@@ -25,7 +25,9 @@ word_bucket * _new_word_bucket(const char * key, int32_t value) {
     assert(key != NULL);
     word_bucket * new_bucket = malloc(sizeof(word_bucket));
     new_bucket->data = value;
-    new_bucket->key = strdup(key);
+    char * tmp = strdup(key);
+    assert(tmp != NULL && "Not enough memory to strdup");
+    new_bucket->key = tmp;
     return new_bucket;
 }
 
@@ -55,11 +57,10 @@ void _word_hashmap_resize_up(word_hashmap * hm) {
         return;
     word_hashmap * new_hm = new_word_hashmap_sized(hm->max_size);
     new_hm->max_size <<= 1;
-    new_hm->table_size = hm->table_size;
     new_hm->bucket_array = calloc((size_t) new_hm->max_size, sizeof(word_bucket *));
     assert(new_hm != NULL && "fatal : calloc failed during resizing");
 
-    for (int i=0; i<hm->table_size; i++) {
+    for (int i=0; i<hm->max_size; i++) {
         word_bucket * bucket = hm->bucket_array[i];
         if (bucket != NULL && bucket != &DELETED_WORD_BUCKET)
             word_hashmap_insert(bucket->key, bucket->data, new_hm);
@@ -111,7 +112,7 @@ void free_word_hashmap(word_hashmap * hm) {
     hm = NULL;
     free(hm);
 }
-// TODO: FIX _word_hashmap_resize_up : doesnt copy all buckets & creates bucket with NULL keys
+
 bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
     const uint32_t load = (hm->table_size+1)*100 / hm->max_size;
     if (load > 70)
