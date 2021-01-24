@@ -6,13 +6,11 @@ TARGETS=launcher.c
 TEST_SHELL= tests/test_lol_shell.c
 TEST_HASHMAP= tests/test_lol_hashmap.c
 
-BENCH_CC=gcc -march=native -O3 -o
+BENCH_CC=gcc -march=native -O3 -pg -o
 BENCH_TARGET=benchmark/benchmark.c
 BENCH_OUT=benchmark/bench
 BENCH_DEP=hashmap.c
 BENCH_ARGS= i
-
-PROFILE_CC=gcc -O1 -pg
 
 DEBUG_CC=gcc -ggdb
 
