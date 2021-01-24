@@ -3,22 +3,13 @@
 word_bucket DELETED_WORD_BUCKET = {NULL, 0};
 
 uint32_t _hash(const char * key,
-               const uint32_t prime,
                const uint32_t number_buckets) {
     uint32_t hash = 0;
     int len = strlen(key);
     for (int i=0; i<len; i++)
         hash += (uint32_t) key[i];
-    hash = ((uint32_t) hash) % number_buckets;
-    return (uint32_t) hash;
-}
-
-uint32_t get_hash(const char * key,
-                  const uint32_t number_buckets,
-                  const uint32_t attempt) {
-    const uint32_t hash1 = _hash(key, HASH_PRIME_1, number_buckets);
-    const uint32_t hash2 = _hash(key, HASH_PRIME_2, number_buckets);
-    return (hash1 + attempt*(hash2 + 1)) % number_buckets;
+    uint32_t mask = number_buckets -1;
+    return hash & mask;
 }
 
 word_bucket * _new_word_bucket(const char * key, int32_t value) {
@@ -118,19 +109,19 @@ bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
     if (load > 70)
         _word_hashmap_resize_up(hm);
     word_bucket * new_bucket = _new_word_bucket(key, value);
-    uint32_t index = get_hash(key, hm->max_size, 0);
+    uint32_t index = _hash(key, hm->max_size);
 
     word_bucket * current_bucket;
-    int i = 1;
     while (current_bucket = hm->bucket_array[index],
-           current_bucket != NULL && current_bucket != &DELETED_WORD_BUCKET) {
-        if (strcmp(current_bucket->key, key) == 0) {
+           current_bucket != NULL) {
+        if (current_bucket != &DELETED_WORD_BUCKET) {
+            if (strcmp(current_bucket->key, key) == 0) {
             _free_word_bucket(current_bucket);
             hm->bucket_array[index] = new_bucket;
             return true;
+            }
         }
-        index = get_hash(key, hm->max_size, i);
-        i++;
+        index++;
     }
     
     hm->bucket_array[index] = new_bucket;
@@ -139,15 +130,15 @@ bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
 }
 
 int32_t word_hashmap_search(const char * key, word_hashmap * hm) {
-    uint32_t index = get_hash(key, hm->max_size, 0);
+    uint32_t index = _hash(key, hm->max_size);
     word_bucket * current_bucket;
-    int i = 1;
     while (current_bucket = hm->bucket_array[index],
-           current_bucket != NULL && current_bucket != &DELETED_WORD_BUCKET) {
-        if (strcmp(current_bucket->key, key) == 0)
-            return current_bucket->data;
-        index = get_hash(key, hm->max_size, i);
-        i++;
+           current_bucket != NULL) {
+        if (current_bucket != &DELETED_WORD_BUCKET) {
+            if (strcmp(current_bucket->key, key) == 0)
+                return current_bucket->data;
+            }
+        index++;
     }
     return 0;
 }
@@ -159,9 +150,8 @@ void word_hashmap_delete(const char * key, word_hashmap * hm) {
             _word_hashmap_resize_down(hm);
     }
 
-    uint32_t index = get_hash(key, hm->max_size, 0);
+    uint32_t index = _hash(key, hm->max_size);
     word_bucket * current_bucket;
-    int i = 1;
     while (current_bucket = hm->bucket_array[index], current_bucket != NULL) {
         if (current_bucket != &DELETED_WORD_BUCKET) {
             if (strcmp(current_bucket->key, key) == 0) {
@@ -170,8 +160,7 @@ void word_hashmap_delete(const char * key, word_hashmap * hm) {
                 hm->table_size--;
             }
         }
-        index = get_hash(key, hm->max_size, i);
-        i++;
+        index++;
     }
 }
 

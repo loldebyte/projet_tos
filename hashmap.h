@@ -32,8 +32,7 @@ typedef struct _word_hashmap {
     word_bucket ** bucket_array;
 } word_hashmap;
 
-uint32_t _hash(const char *, const uint32_t, const uint32_t);
-uint32_t get_hash(const char *, const uint32_t, const uint32_t);
+uint32_t _hash(const char *, const uint32_t);
 word_bucket * _new_word_bucket(const char *, int32_t);
 void _free_word_bucket(word_bucket *);
 word_hashmap * new_word_hashmap(void);
