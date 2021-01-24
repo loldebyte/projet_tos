@@ -164,4 +164,7 @@ void word_hashmap_delete(const char * key, word_hashmap * hm) {
     }
 }
 
-
+string_hashmap * new_string_hashmap() {
+    printf("NOT IMPLEMENTED\n");
+    return NULL;
+}
