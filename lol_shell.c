@@ -112,11 +112,10 @@ void print_all_chars_in_str(char * str) {
         printf("char #%d: %c\n", i, str[i]);
 }
 
-
 bool save_variable(char * argument, word_hashmap * hashmap) {
     /*  argument : the string containing the key/value pair
         hashmap : if NULL, create a new word_hashmap and make hashmap point towards it
-        else the hashmap to use */
+        if not-null, will use the hashmap it points to */
     if hashmap == NULL
         hashmap = new_word_hashmap();
     char * key;
