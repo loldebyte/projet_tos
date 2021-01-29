@@ -40,6 +40,7 @@ word_hashmap * new_word_hashmap_sized(const uint32_t new_size) {
     hm->max_size = new_size;
     hm->table_size = 0;
     hm->bucket_array = calloc((size_t) hm->max_size, sizeof(word_bucket *));
+    assert(hm->bucket_array != NULL && "Not enough memory for bucket_array allocation");
     return hm;
 }
 

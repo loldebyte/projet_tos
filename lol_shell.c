@@ -111,3 +111,40 @@ void print_all_chars_in_str(char * str) {
     for (int i = strlen(str)-1; i>-1; i--)
         printf("char #%d: %c\n", i, str[i]);
 }
+
+
+bool save_variable(char * argument, word_hashmap * hashmap) {
+    /*  argument : the string containing the key/value pair
+        hashmap : if NULL, create a new word_hashmap and make hashmap point towards it
+        else the hashmap to use */
+    if hashmap == NULL
+        hashmap = new_word_hashmap();
+    char * key;
+    int32_t value;
+    bool extraction_succeeded = exctract_key_value_pair(key, &value, argument);
+    free(key);
+    if extraction_succeeded
+        if word_hashmap_insert(key, value, hashmap)
+            return true;
+    return false;
+}
+
+bool exctract_key_value_pair(char * key, int32_t * value, char * argument) {
+    key = strdup(strtok(argument, "="));
+    char * string_value = strdup(strtok(NULL, "="));
+    char * endptr;
+    errno = 0;
+    *value = strtol(string_value, &endptr, 10);
+    if (errno == ERANGE || (errno != 0 && *value == 0)) {
+        perror("exctract_key_value: strtol");
+        free(string_value);
+        return false;
+    }
+    if (endptr == string_value) {
+        fprintf(stderr, "No digits found in the value side !\n");
+        free(string_value);
+        return false;
+    }
+    free(string_value);
+    return true;
+}
