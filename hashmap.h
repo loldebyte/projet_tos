@@ -15,12 +15,6 @@
 #define HASH_PRIME_1 13
 #define HASH_PRIME_2 53
 
-// TODO: implement open-adressing hashmap for small ints (int8_t) exclusively
-// diffusion of the hashing should be garanteed via modular hashing
-// this means the # of buckets should ALWAYS be a power of 2 (maybe even 8 for conveniance ?) !
-// modular hashing : h(k) = k % m ; m being the # of buckets
-// because we design m to be congruent to 2, this means taking the p lowest bits such that :
-// m = 2^p
 typedef struct _word_bucket {
     char * key;
     int32_t data;
