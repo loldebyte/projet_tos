@@ -8,6 +8,7 @@ bool test_strings_are_the_same(void);
 bool test_exec_conf_factory(void);
 bool test_dealloc_last_argument(EXECUTION_CONF *);
 bool test_execute(EXECUTION_CONF *);
+bool test_define_int_variable(void);
 
 bool test_validate_input(void) {
     {
@@ -102,6 +103,16 @@ bool test_set_execution_type(void) {
                && "set_execution_type incorrectly modifies WAIT");
     }
     return true;
+}
+
+bool test_define_int_variable(void) {
+    {
+        EXECUTION_CONF * conf = exec_conf_factory();
+        char variable_affectation[BUFFER] = "MY_VAR=42";
+        split_into_arguments(variable_affectation, conf);
+        assert(conf->number_of_arguments == 1 && "# args is incorrect !");
+        // TODO: complete test
+    }
 }
 
 int main(int argc, char ** argv) {
