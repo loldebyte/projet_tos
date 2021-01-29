@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "hashmap.h"
 
 #define SEP " "
 #define BUFFER 102
@@ -37,6 +38,6 @@ void print_all_args(EXECUTION_CONF *);
 void print_all_chars_in_str(char *);
 
 bool save_variable(char *, word_hashmap *);
-bool exctract_key_value_pair(char *, int32_t *, char *);
+bool exctract_key_value_pair(char **, int32_t *, char *);
 
 #endif
