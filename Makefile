@@ -33,4 +33,7 @@ debug: $(TEST) $(DEPS)
 	$(DEBUG_CC) $(CFLAGS) test_hashmap $(TEST_HASHMAP) $(DEPS)
 	./test_hashmap
 
-.PHONY: benchmark test debug
+clean:
+	rm test_*
+
+.PHONY: benchmark test debug clean
