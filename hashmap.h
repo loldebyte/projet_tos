@@ -28,7 +28,7 @@ typedef struct _word_hashmap {
 
 uint32_t _hash(const char *, const uint32_t);
 word_bucket * _new_word_bucket(const char *, int32_t);
-void _free_word_bucket(word_bucket *);
+void _free_word_bucket(word_bucket **);
 word_hashmap * new_word_hashmap(void);
 word_hashmap * new_word_hashmap_sized(const uint32_t);
 void _word_hashmap_resize_up(word_hashmap *);
@@ -45,11 +45,11 @@ typedef struct _string_bucket {
     char * data;
 } string_bucket;
 
-typedef struct _ string_hashmap {
+typedef struct _string_hashmap {
     uint32_t table_size;
     uint32_t max_size;
     string_bucket ** bucket_array;
-}
+} string_hashmap;
 
 string_hashmap * new_string_hashmap();
 

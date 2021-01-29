@@ -4,6 +4,7 @@ word_bucket DELETED_WORD_BUCKET = {NULL, 0};
 
 uint32_t _hash(const char * key,
                const uint32_t number_buckets) {
+    assert(key != NULL);
     uint32_t hash = 0;
     int len = strlen(key);
     for (int i=0; i<len; i++)
@@ -13,8 +14,9 @@ uint32_t _hash(const char * key,
 }
 
 word_bucket * _new_word_bucket(const char * key, int32_t value) {
-    assert(key != NULL);
+    assert(key != NULL && "No key passed !");
     word_bucket * new_bucket = malloc(sizeof(word_bucket));
+    assert(new_bucket != NULL && "Could not allocate bucket");
     new_bucket->data = value;
     char * tmp = strdup(key);
     assert(tmp != NULL && "Not enough memory to strdup");
@@ -22,12 +24,11 @@ word_bucket * _new_word_bucket(const char * key, int32_t value) {
     return new_bucket;
 }
 
-void _free_word_bucket(word_bucket * wb) {
-    wb->data = 0;
-    wb->key = NULL;
-    free(wb->key);
-    wb = NULL;
-    free(wb);
+void _free_word_bucket(word_bucket ** wb) {
+    assert(*wb != NULL);
+    free((*wb)->key);
+    free(*wb);
+    *wb = NULL;
 }
 
 word_hashmap * new_word_hashmap() {
@@ -94,14 +95,12 @@ void _word_hashmap_resize_down(word_hashmap * hm) {
 void free_word_hashmap(word_hashmap * hm) {
     for (int i=0; i<hm->table_size; i++) {
         word_bucket * bucket = hm->bucket_array[i];
-        if (bucket != NULL)
-            _free_word_bucket(bucket);
+        if (bucket != NULL && bucket != &DELETED_WORD_BUCKET) {
+            _free_word_bucket(&bucket);
+        }
+        else bucket = NULL;
     }
-    hm->table_size = 0;
-    hm->max_size = 0;
-    hm->bucket_array = NULL;
     free(hm->bucket_array);
-    hm = NULL;
     free(hm);
 }
 
@@ -117,9 +116,9 @@ bool word_hashmap_insert(const char * key, uint32_t value, word_hashmap * hm) {
            current_bucket != NULL) {
         if (current_bucket != &DELETED_WORD_BUCKET) {
             if (strcmp(current_bucket->key, key) == 0) {
-            _free_word_bucket(current_bucket);
-            hm->bucket_array[index] = new_bucket;
-            return true;
+                _free_word_bucket(&current_bucket);
+                hm->bucket_array[index] = new_bucket;
+                return true;
             }
         }
         index++;
@@ -156,7 +155,7 @@ void word_hashmap_delete(const char * key, word_hashmap * hm) {
     while (current_bucket = hm->bucket_array[index], current_bucket != NULL) {
         if (current_bucket != &DELETED_WORD_BUCKET) {
             if (strcmp(current_bucket->key, key) == 0) {
-                _free_word_bucket(current_bucket);
+                _free_word_bucket(&current_bucket);
                 hm->bucket_array[index] = &DELETED_WORD_BUCKET;
                 hm->table_size--;
             }
