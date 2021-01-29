@@ -1,5 +1,5 @@
 #include "../lol_shell.h"
-
+#include "../hashmap.h"
 
 bool test_validate_input(void);
 bool test_split_into_arguments(void);
@@ -113,6 +113,7 @@ bool test_define_int_variable(void) {
         assert(conf->number_of_arguments == 1 && "# args is incorrect !");
         // TODO: complete test
     }
+    return true
 }
 
 int main(int argc, char ** argv) {
