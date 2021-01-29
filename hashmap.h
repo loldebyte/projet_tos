@@ -4,9 +4,9 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define HASHMAP_HARD_SIZE_LIMIT 8589934592 // 2^33
 #define HASHMAP_MIN_SIZE 16
