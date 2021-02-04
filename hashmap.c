@@ -18,9 +18,8 @@ word_bucket * _new_word_bucket(const char * key, int32_t value) {
     word_bucket * new_bucket = malloc(sizeof(word_bucket));
     assert(new_bucket != NULL && "Could not allocate bucket");
     new_bucket->data = value;
-    char * tmp = strdup(key);
-    assert(tmp != NULL && "Not enough memory to strdup");
-    new_bucket->key = tmp;
+    new_bucket->key = strdup(key);
+    assert(new_bucket->key != NULL && "Not enough memory to strdup");
     return new_bucket;
 }
 
@@ -66,7 +65,7 @@ void _word_hashmap_resize_up(word_hashmap * hm) {
 
     word_bucket ** tmp_bucket_array = hm->bucket_array;
     hm->bucket_array = new_hm->bucket_array;
-    *(new_hm->bucket_array) = *(tmp_bucket_array);
+    new_hm->bucket_array = tmp_bucket_array;
     free_word_hashmap(new_hm);
 }
 
