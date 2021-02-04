@@ -80,8 +80,8 @@ bool test_deletion_doesnt_break_chain(void) {
 int main(int argc, char ** argv) {
     assert(test_hashmap_creation_deletion() && "creation fails !");
     assert(test_hashmap_insertion() && "insertion fails !");
-    assert(test_many_insertions() && "many insertions fails !");
     assert(test_single_search() && "single search fails !");
+    assert(test_many_insertions() && "many insertions fails !");
     assert(test_multisearch() && "multisearch fails !");
     assert(test_deletion_doesnt_break_chain()
            && "deletion breaks chain causing search failure !");
