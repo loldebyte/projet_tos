@@ -113,7 +113,7 @@ bool test_define_int_variable(void) {
         assert(conf->number_of_arguments == 1 && "# args is incorrect !");
         // TODO: complete test
     }
-    return true
+    return true;
 }
 
 int main(int argc, char ** argv) {
