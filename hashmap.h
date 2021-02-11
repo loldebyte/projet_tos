@@ -39,7 +39,6 @@ bool word_hashmap_insert(const char *, uint32_t, word_hashmap *);
 int32_t word_hashmap_search(const char *, word_hashmap *);
 void word_hashmap_delete(const char *, word_hashmap *);
 
-// TODO: implement a chaining hashmap for long (>7 chars) strings or larger objects
 typedef struct _string_bucket {
     char * key;
     char * data;
