@@ -25,8 +25,7 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
     //    - - arguments : array of strings (char *)
     //    - - number_of_arguments : length of the array `arguments`
     //    - - exec_type : a flag dictating how to manage execution
-    // returns the length of the `output` array as a size_t after storing all tokens
-    // in the array pointed to by `output`
+    // stores all tokens in the array pointed to by `output`
     size_t curr_cell = 0;
     char * token;
     while (token = strtok(curr_cell == 0 ? input : NULL, SEP), token != NULL) {
@@ -39,7 +38,7 @@ void split_into_arguments(char * input, EXECUTION_CONF * config) {
     config->number_of_arguments = curr_cell;
 }
 
-void execute(EXECUTION_CONF * config) {
+void execute(EXECUTION_CONF * config, word_hashmap ** hm) {
     // creates a child process executing the `arguments` member of the parameter by forking
     // the current process, child process gets exec'd and parent process waits
     // parameter(s) :
@@ -47,8 +46,17 @@ void execute(EXECUTION_CONF * config) {
     int status;
     if (strcmp(config->arguments[0], "exit") == 0)
         exit(0);
-    if (config->exec_type != WAIT)
+    if (config->exec_type == DEFINE_VARIABLE) {
+        if (!save_variable(config->arguments[0], hm)) {
+            perror("Could not save variable !\n");
+        }
+        return;
+    }
+    if (config->exec_type == DONT_WAIT)
         dealloc_last_argument(config);
+    for (size_t k=0; k<config->number_of_arguments-1; k++) {
+        assert(replace_variables_by_their_value(config->arguments[k], *hm));
+    }
     pid_t pid = fork();
     assert(pid != -1 && "Error : could not create child process");
     if (pid == 0) {
@@ -73,6 +81,9 @@ void execute(EXECUTION_CONF * config) {
 void set_execution_type(EXECUTION_CONF * config) {
     if (strings_are_the_same(config->arguments[config->number_of_arguments-1], "&")) {
         config->exec_type = DONT_WAIT;
+    }
+    else if (config->number_of_arguments == 1 && strchr(config->arguments[0], '=') != NULL) {
+        config->exec_type = DEFINE_VARIABLE;
     }
     else config->exec_type = WAIT;
 }
@@ -112,30 +123,32 @@ void print_all_chars_in_str(char * str) {
         printf("char #%d: %c\n", i, str[i]);
 }
 
-bool save_variable(char * argument, word_hashmap * hashmap) {
+bool save_variable(char * argument, word_hashmap ** hashmap) {
     /*  argument : the string containing the key/value pair
         hashmap : if NULL, create a new word_hashmap and make hashmap point towards it
         if not-null, will use the hashmap it points to */
-    if (hashmap == NULL)
-        hashmap = new_word_hashmap();
+    if (*hashmap == NULL)
+        *hashmap = new_word_hashmap();
     char * key;
     int32_t value;
-    bool extraction_succeeded = exctract_key_value_pair(&key, &value, argument);
+    bool extraction_succeeded = extract_key_value_pair(&key, &value, argument);
     if (extraction_succeeded)
-        if (word_hashmap_insert(key, value, hashmap))
+        if (word_hashmap_insert(key, value, *hashmap)) {
+            free(key);
             return true;
+        }
     free(key);
     return false;
 }
 
-bool exctract_key_value_pair(char ** key, int32_t * value, char * argument) {
+bool extract_key_value_pair(char ** key, int32_t * value, char * argument) {
     *key = strdup(strtok(argument, "="));
     char * string_value = strdup(strtok(NULL, "="));
     char * endptr;
     errno = 0;
     *value = strtol(string_value, &endptr, 10);
     if (errno == ERANGE || (errno != 0 && *value == 0)) {
-        perror("extract_key_value: strtol");
+        perror("extract_key_value: strtol failed\n");
         free(string_value);
         return false;
     }
@@ -147,3 +160,45 @@ bool exctract_key_value_pair(char ** key, int32_t * value, char * argument) {
     free(string_value);
     return true;
 }
+
+bool replace_variables_by_their_value(char * argument, word_hashmap * hm) {
+    char * substrings[100];
+    char * keys[99];
+    char * str_values[99];
+    substrings[0] = strtok(argument, "$");
+    assert(substrings[0] != NULL);
+    char * tmp;
+    int indice = 1;
+    while (tmp = strtok(NULL, "$"), tmp != NULL) {
+        substrings[indice] = tmp+number_of_chars_behind_cash(tmp);
+        strncpy(keys[indice-1], tmp, number_of_chars_behind_cash(tmp));
+        indice++;
+        assert(indice<99 && "Too many variables in one argument !");
+    }
+    for (int k=0; k<indice; k++) {
+        int32_t value = word_hashmap_search(keys[k], hm);
+        int n = snprintf(NULL, 0, "%li", (long) value);
+        char buf[n+1];
+        int c = snprintf(buf, n+1, "%li", (long) value);
+        assert(n == c);
+        str_values[k] = buf;
+    }
+    char final_string[strlen(argument)*2+20];
+    final_string[0] = '\0';
+    strcat(final_string, substrings[0]);
+    for (int k=0; k<indice; k++) {
+        strcat(strcat(final_string, str_values[k]), substrings[k+1]);
+    }
+    free(argument);
+    argument = strdup(final_string);
+    return true;
+}
+
+int number_of_chars_behind_cash(char * str) {
+    int i = 0;
+    while (str[i] != ' ' && str[i] != '\0') {
+        i++;
+    }
+    return i;
+}
+
