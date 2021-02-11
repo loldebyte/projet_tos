@@ -1,5 +1,5 @@
 #include "../lol_shell.h"
-
+#include "../hashmap.h"
 
 bool test_validate_input(void);
 bool test_split_into_arguments(void);
@@ -8,6 +8,7 @@ bool test_strings_are_the_same(void);
 bool test_exec_conf_factory(void);
 bool test_dealloc_last_argument(EXECUTION_CONF *);
 bool test_execute(EXECUTION_CONF *);
+bool test_define_int_variable(void);
 
 bool test_validate_input(void) {
     {
@@ -32,6 +33,7 @@ bool test_validate_input(void) {
         assert(validate_input(&too_long_string) == false
                && "Invalid string didnt fail !");
     }
+    return true;
 }
 
 bool test_exec_conf_factory(void) {
@@ -54,6 +56,7 @@ bool test_strings_are_the_same(void) {
         assert(strings_are_the_same(str1, str2) == false
                && "dissimilar strings return true !");
     }
+    return true;
 }
 
 bool test_split_into_arguments(void) {
@@ -99,13 +102,39 @@ bool test_set_execution_type(void) {
         assert(conf_wait->exec_type == WAIT
                && "set_execution_type incorrectly modifies WAIT");
     }
+    return true;
 }
 
-int main(void) {
+bool test_define_int_variable(void) {
+    {
+        word_hashmap * hm = NULL;
+        EXECUTION_CONF * conf = exec_conf_factory();
+        char variable_affectation[BUFFER] = "MY_VAR=42";
+        split_into_arguments(variable_affectation, conf);
+        assert(conf->number_of_arguments == 1 && "# args is incorrect !");
+        set_execution_type(conf);
+        execute(conf, &hm);
+        assert(word_hashmap_search("MY_VAR", hm) == 42 && "Insertion fails !");
+    }
+    {
+        word_hashmap * hm = NULL;
+        EXECUTION_CONF * conf = exec_conf_factory();
+        char variable_affectation[BUFFER] = "MY_VAR=az";
+        split_into_arguments(variable_affectation, conf);
+        assert(conf->number_of_arguments == 1 && "# args is incorrect !");
+        set_execution_type(conf);
+        execute(conf, &hm);
+        assert(word_hashmap_search("MY_VAR", hm) == 0 && "Something was inserted !");
+    }
+    return true;
+}
+
+int main(int argc, char ** argv) {
     assert(test_validate_input() && "validate_input test failing !");
     assert(test_strings_are_the_same() && "strings_are_the_same test failing !");
     assert(test_exec_conf_factory() && "exec_conf_factory test failing !");
     assert(test_split_into_arguments() && "split_into_args test failing !");
     assert(test_set_execution_type() && "set_execution_type test failing !");
-    printf("----- OK : ALL TEST PASS ! -----\n");
+    assert(test_define_int_variable() && "define_int_variable test failing !");
+    printf("----- OK : ALL %s TEST PASS ! -----\n", argv[0]);
 }
